@@ -73,8 +73,12 @@ services:
       RABBITMQ_USERNAME: guest
       RABBITMQ_PASSWORD: guest
       RABBITMQ_VHOST: /
+      APP_PAYMENT_LINE_TRANSPORT: rabbitmq
       APP_RABBIT_ENABLED: "true"
       APP_RABBIT_QUEUE: payment.lines.queue
+      APP_GRPC_HOST: payment-line-processor
+      APP_GRPC_PORT: "9090"
+      APP_GRPC_DEADLINE_SECONDS: "10"
       MANAGEMENT_HEALTH_RABBIT_ENABLED: "true"
       APP_CORE_VALIDATION_ENABLED: "false"
       JPA_DDL_AUTO: update

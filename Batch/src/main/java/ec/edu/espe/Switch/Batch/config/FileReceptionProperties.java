@@ -7,8 +7,12 @@ public class FileReceptionProperties {
 
     private int duplicateWindowDays = 30;
     private String fileDelimiter = ",";
+    private PaymentLineTransport paymentLineTransport = PaymentLineTransport.RABBITMQ;
     private boolean rabbitEnabled = false;
     private String rabbitQueue = "payment.lines.queue";
+    private String grpcHost = "localhost";
+    private int grpcPort = 9090;
+    private long grpcDeadlineSeconds = 10;
     private int cutoffHour = 18;
     private String coreBaseUrl = "http://localhost:8080";
     private String coreHolidayEndpoint = "/api/v1/holidays/is-business-day";
@@ -32,6 +36,14 @@ public class FileReceptionProperties {
         this.fileDelimiter = fileDelimiter;
     }
 
+    public PaymentLineTransport getPaymentLineTransport() {
+        return paymentLineTransport;
+    }
+
+    public void setPaymentLineTransport(PaymentLineTransport paymentLineTransport) {
+        this.paymentLineTransport = paymentLineTransport;
+    }
+
     public boolean isRabbitEnabled() {
         return rabbitEnabled;
     }
@@ -46,6 +58,30 @@ public class FileReceptionProperties {
 
     public void setRabbitQueue(String rabbitQueue) {
         this.rabbitQueue = rabbitQueue;
+    }
+
+    public String getGrpcHost() {
+        return grpcHost;
+    }
+
+    public void setGrpcHost(String grpcHost) {
+        this.grpcHost = grpcHost;
+    }
+
+    public int getGrpcPort() {
+        return grpcPort;
+    }
+
+    public void setGrpcPort(int grpcPort) {
+        this.grpcPort = grpcPort;
+    }
+
+    public long getGrpcDeadlineSeconds() {
+        return grpcDeadlineSeconds;
+    }
+
+    public void setGrpcDeadlineSeconds(long grpcDeadlineSeconds) {
+        this.grpcDeadlineSeconds = grpcDeadlineSeconds;
     }
 
     public int getCutoffHour() {
