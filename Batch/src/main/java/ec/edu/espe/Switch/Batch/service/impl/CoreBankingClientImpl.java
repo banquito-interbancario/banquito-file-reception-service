@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import ec.edu.espe.Switch.Batch.config.FileReceptionProperties;
+import ec.edu.espe.Switch.Batch.dto.CoreFavoriteAccountResponse;
 import ec.edu.espe.Switch.Batch.service.ICoreBankingClient;
 
 @Service
@@ -56,6 +57,41 @@ public class CoreBankingClientImpl implements ICoreBankingClient {
     }
 
     @Override
+    public boolean isFavoriteAccount(String accountNumber, String customerId) {
+        if (!properties.isCoreValidationEnabled()) {
+            return accountNumber != null && !accountNumber.isBlank();
+        }
+        if (accountNumber == null || accountNumber.isBlank() || customerId == null || customerId.isBlank()) {
+            return false;
+        }
+        try {
+            CoreFavoriteAccountResponse response = restClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(properties.getCoreFavoriteAccountEndpoint())
+                            .build(customerId))
+                    .retrieve()
+                    .body(CoreFavoriteAccountResponse.class);
+            if (response == null) {
+                logger.warn("Core no retorno cuenta favorita para cliente {}", customerId);
+                return false;
+            }
+            if (Boolean.FALSE.equals(response.favorite())) {
+                logger.warn("Core retorno cuenta no favorita para cliente {}", customerId);
+                return false;
+            }
+            var favoriteAccountNumber = response.resolvedAccountNumber();
+            if (favoriteAccountNumber.isEmpty()) {
+                logger.warn("Core no retorno numero de cuenta favorita para cliente {}", customerId);
+                return false;
+            }
+            return accountNumber.equals(favoriteAccountNumber.get());
+        } catch (RuntimeException e) {
+            logger.warn("No se pudo consultar cuenta favorita para cliente {} en Core: {}", customerId, e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
     public boolean hasActiveMassPaymentService(String clientRuc, String serviceType) {
         if (!properties.isCoreValidationEnabled()) {
             return clientRuc != null && !clientRuc.isBlank();
@@ -86,4 +122,5 @@ public class CoreBankingClientImpl implements ICoreBankingClient {
             return false;
         }
     }
+
 }

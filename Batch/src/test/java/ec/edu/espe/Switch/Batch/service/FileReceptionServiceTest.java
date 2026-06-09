@@ -66,6 +66,7 @@ class FileReceptionServiceTest {
         when(businessDayService.isBusinessDay(any(LocalDate.class))).thenReturn(true);
         when(businessDayService.nextBusinessDay(any(LocalDate.class))).thenAnswer(invocation -> invocation.<LocalDate>getArgument(0).plusDays(1));
         when(coreBankingClient.hasActiveMassPaymentService(anyString(), anyString())).thenReturn(true);
+        when(coreBankingClient.isFavoriteAccount(anyString(), anyString())).thenReturn(true);
     }
 
     @Test
@@ -81,6 +82,7 @@ class FileReceptionServiceTest {
         verify(eventPublisher, never()).publishEvent(any());
         verify(coreBankingClient, never()).hasActiveMassPaymentService(anyString(), anyString());
         verify(coreBankingClient, never()).isAccountValid(anyString(), anyString());
+        verify(coreBankingClient, never()).isFavoriteAccount(anyString(), anyString());
     }
 
     @Test

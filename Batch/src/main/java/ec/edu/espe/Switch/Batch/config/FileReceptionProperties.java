@@ -15,8 +15,9 @@ public class FileReceptionProperties {
     private long grpcDeadlineSeconds = 10;
     private int cutoffHour = 18;
     private String coreBaseUrl = "http://localhost:8080";
-    private String coreHolidayEndpoint = "/api/v1/holidays/is-business-day";
+    private String coreHolidayEndpoint = "/api/v2/calendar/holidays/check";
     private String coreAccountValidationEndpoint = "/api/v1/accounts/validate";
+    private String coreFavoriteAccountEndpoint = "/api/v2/accounts/customer/{customerId}/favorite";
     private String coreMassPaymentServiceEndpoint = "/api/v1/customers/mass-payments/active";
     private boolean coreValidationEnabled = true;
 
@@ -114,6 +115,14 @@ public class FileReceptionProperties {
 
     public void setCoreAccountValidationEndpoint(String coreAccountValidationEndpoint) {
         this.coreAccountValidationEndpoint = coreAccountValidationEndpoint;
+    }
+
+    public String getCoreFavoriteAccountEndpoint() {
+        return coreFavoriteAccountEndpoint;
+    }
+
+    public void setCoreFavoriteAccountEndpoint(String coreFavoriteAccountEndpoint) {
+        this.coreFavoriteAccountEndpoint = coreFavoriteAccountEndpoint;
     }
 
     public String getCoreMassPaymentServiceEndpoint() {

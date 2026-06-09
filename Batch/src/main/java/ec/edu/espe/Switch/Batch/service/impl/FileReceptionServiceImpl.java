@@ -99,7 +99,7 @@ public class FileReceptionServiceImpl implements IFileReceptionService {
         }
 
         List<ParsedPaymentLine> acceptedLines = validCustomerServiceLines(batch);
-        boolean sourceAccountValid = coreBankingClient.isAccountValid(batch.sourceAccountNumber(), batch.clientRuc());
+        boolean sourceAccountValid = coreBankingClient.isFavoriteAccount(batch.sourceAccountNumber(), batch.clientRuc());
         boolean customerServiceValid = sourceAccountValid && acceptedLines.size() == batch.lines().size();
         saveValidation(batchDocument.getId(), batch, duplicateValid, customerServiceValid);
 

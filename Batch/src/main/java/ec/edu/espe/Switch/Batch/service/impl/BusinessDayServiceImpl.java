@@ -2,7 +2,6 @@ package ec.edu.espe.Switch.Batch.service.impl;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import ec.edu.espe.Switch.Batch.config.FileReceptionProperties;
+import ec.edu.espe.Switch.Batch.dto.CoreHolidayResponse;
 import ec.edu.espe.Switch.Batch.service.IBusinessDayService;
 
 @Service
@@ -40,19 +40,15 @@ public class BusinessDayServiceImpl implements IBusinessDayService {
             return isWeekday(date);
         }
         try {
-            Map<?, ?> response = restClient.get()
+            CoreHolidayResponse response = restClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path(properties.getCoreHolidayEndpoint())
                             .queryParam("date", date)
                             .build())
                     .retrieve()
-                    .body(Map.class);
-            Object value = response == null ? null : response.get("businessDay");
-            if (value == null) {
-                value = response == null ? null : response.get("isBusinessDay");
-            }
-            if (value instanceof Boolean businessDay) {
-                return businessDay;
+                    .body(CoreHolidayResponse.class);
+            if (response != null && response.resolveBusinessDay().isPresent()) {
+                return response.resolveBusinessDay().get();
             }
         } catch (RuntimeException e) {
             logger.warn("No se pudo consultar HOLIDAY en Core. Se usara regla lunes-viernes: {}", e.getMessage());
