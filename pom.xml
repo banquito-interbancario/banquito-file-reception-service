@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>ec.edu.espe.Switch</groupId>
-	<artifactId>Batch</artifactId>
+	<artifactId>banquito-file-reception-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
+	<name>banquito-file-reception-service</name>
+	<description>BanQuito file reception service</description>
 	<url/>
 	<licenses>
 		<license/>

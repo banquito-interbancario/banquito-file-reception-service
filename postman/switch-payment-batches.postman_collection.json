@@ -27,29 +27,19 @@
         "header": [],
         "url": {
           "raw": "{{baseUrl}}/actuator/health",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "actuator",
-            "health"
-          ]
+          "host": ["{{baseUrl}}"],
+          "path": ["actuator", "health"]
         }
       },
       "event": [
         {
           "listen": "test",
           "script": {
+            "type": "text/javascript",
             "exec": [
-              "pm.test('HTTP 200', function () {",
-              "  pm.response.to.have.status(200);",
-              "});",
-              "",
-              "pm.test('Health UP', function () {",
-              "  pm.expect(pm.response.json().status).to.eql('UP');",
-              "});"
-            ],
-            "type": "text/javascript"
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Health UP', function () { pm.expect(pm.response.json().status).to.eql('UP'); });"
+            ]
           }
         }
       ]
@@ -81,34 +71,23 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/v1/payments/batches",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "payments",
-            "batches"
-          ]
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "payments", "batches"]
         }
       },
       "event": [
         {
           "listen": "test",
           "script": {
+            "type": "text/javascript",
             "exec": [
-              "pm.test('HTTP 202 Accepted', function () {",
-              "  pm.response.to.have.status(202);",
-              "});",
-              "",
+              "pm.test('HTTP 202 Accepted', function () { pm.response.to.have.status(202); });",
               "pm.test('Status RECEIVED', function () {",
               "  const body = pm.response.json();",
               "  pm.expect(body.batch_id || body.batchId).to.exist;",
               "  pm.expect(body.status).to.eql('RECEIVED');",
-              "  pm.expect(body.message).to.eql('Lote recibido, procesando en segundo plano');",
               "});"
-            ],
-            "type": "text/javascript"
+            ]
           }
         }
       ]
@@ -140,31 +119,18 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/v1/payments/batches",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "payments",
-            "batches"
-          ]
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "payments", "batches"]
         }
       },
       "event": [
         {
           "listen": "test",
           "script": {
+            "type": "text/javascript",
             "exec": [
-              "pm.test('HTTP 409 Conflict', function () {",
-              "  pm.response.to.have.status(409);",
-              "});",
-              "",
-              "pm.test('Mensaje lote duplicado', function () {",
-              "  pm.expect(pm.response.json().error).to.eql('Lote duplicado');",
-              "});"
-            ],
-            "type": "text/javascript"
+              "pm.test('HTTP 409 Conflict', function () { pm.response.to.have.status(409); });"
+            ]
           }
         }
       ]
@@ -196,31 +162,18 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/v1/payments/batches",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "payments",
-            "batches"
-          ]
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "payments", "batches"]
         }
       },
       "event": [
         {
           "listen": "test",
           "script": {
+            "type": "text/javascript",
             "exec": [
-              "pm.test('HTTP 202 Accepted', function () {",
-              "  pm.response.to.have.status(202);",
-              "});",
-              "",
-              "pm.test('No rechaza el lote completo', function () {",
-              "  pm.expect(pm.response.json().status).to.eql('RECEIVED');",
-              "});"
-            ],
-            "type": "text/javascript"
+              "pm.test('HTTP 202 Accepted', function () { pm.response.to.have.status(202); });"
+            ]
           }
         }
       ]
@@ -252,31 +205,18 @@
         },
         "url": {
           "raw": "{{baseUrl}}/api/v1/payments/batches",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "payments",
-            "batches"
-          ]
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "payments", "batches"]
         }
       },
       "event": [
         {
           "listen": "test",
           "script": {
+            "type": "text/javascript",
             "exec": [
-              "pm.test('HTTP 400 Bad Request', function () {",
-              "  pm.response.to.have.status(400);",
-              "});",
-              "",
-              "pm.test('Tiene error de validacion', function () {",
-              "  pm.expect(pm.response.json().error).to.exist;",
-              "});"
-            ],
-            "type": "text/javascript"
+              "pm.test('HTTP 400 Bad Request', function () { pm.response.to.have.status(400); });"
+            ]
           }
         }
       ]

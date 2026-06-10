@@ -111,13 +111,13 @@ MongoDB crea la base cuando se crea la coleccion o se inserta el primer document
 El archivo de referencia esta en:
 
 ```text
-Batch/.env.example
+.env.example
 ```
 
 Para correr local, crea:
 
 ```text
-Batch/.env
+.env
 ```
 
 Variables principales:
@@ -180,10 +180,10 @@ Endpoints esperados en Core:
 
 ## Ejecutar Local
 
-Desde `Batch`:
+Desde la raiz del microservicio:
 
 ```powershell
-cd "C:\Users\User\Desktop\swith con microservicios7\banquito-file-reception-service\Batch"
+cd "C:\Users\User\Desktop\swith con microservicios7\banquito-file-reception-service"
 .\mvnw.cmd spring-boot:run
 ```
 
@@ -195,7 +195,7 @@ Invoke-RestMethod http://localhost:8084/actuator/health
 
 ## Ejecutar Con Docker
 
-El `Dockerfile` esta en la raiz del repositorio y construye el modulo `Batch`.
+El `Dockerfile` esta en la raiz del microservicio y construye el proyecto Maven directamente.
 
 Desde `banquito-file-reception-service`:
 
@@ -312,16 +312,16 @@ MANAGEMENT_HEALTH_RABBIT_ENABLED=false
 Archivos de prueba:
 
 ```text
-Batch/test-files/batch-valid.csv
-Batch/test-files/batch-invalid-routing.csv
-Batch/test-files/batch-bad-amount.csv
+test-files/batch-valid.csv
+test-files/batch-invalid-routing.csv
+test-files/batch-bad-amount.csv
 ```
 
 Lote valido:
 
 ```powershell
 curl.exe -X POST "http://localhost:8084/api/v1/payments/batches" `
-  -F "file=@Batch/test-files/batch-valid.csv" `
+  -F "file=@test-files/batch-valid.csv" `
   -F "serviceType=NOMINA" `
   -F "clientRuc=0912345678"
 ```
@@ -337,7 +337,7 @@ Routing invalido:
 
 ```powershell
 curl.exe -X POST "http://localhost:8084/api/v1/payments/batches" `
-  -F "file=@Batch/test-files/batch-invalid-routing.csv" `
+  -F "file=@test-files/batch-invalid-routing.csv" `
   -F "serviceType=NOMINA" `
   -F "clientRuc=0912345678"
 ```
@@ -346,7 +346,7 @@ Monto descuadrado:
 
 ```powershell
 curl.exe -X POST "http://localhost:8084/api/v1/payments/batches" `
-  -F "file=@Batch/test-files/batch-bad-amount.csv" `
+  -F "file=@test-files/batch-bad-amount.csv" `
   -F "serviceType=NOMINA" `
   -F "clientRuc=0912345678"
 ```
@@ -356,10 +356,10 @@ curl.exe -X POST "http://localhost:8084/api/v1/payments/batches" `
 Coleccion:
 
 ```text
-Batch/postman/switch-payment-batches.postman_collection.json
+postman/switch-payment-batches.postman_collection.json
 ```
 
-Importala en Postman y valida que el campo `file` este como tipo `File`. Si Postman no resuelve la ruta relativa, selecciona manualmente los archivos desde `Batch/test-files`.
+Importala en Postman y valida que el campo `file` este como tipo `File`. Si Postman no resuelve la ruta relativa, selecciona manualmente los archivos desde `test-files`.
 
 ## Notas De Desarrollo
 
@@ -371,5 +371,5 @@ Importala en Postman y valida que el campo `file` este como tipo `File`. Si Post
 - Despues de las 18:00 el lote queda con `scheduled_process_at` del siguiente dia habil.
 - `payment_batch.status` inicia como `RECEIVED`.
 - RabbitMQ publica en la cola `payment.lines.queue`.
-- gRPC usa el contrato `Batch/src/main/proto/payment_line_ingestion.proto`.
+- gRPC usa el contrato `src/main/proto/payment_line_ingestion.proto`.
 - Para activar gRPC, configura `APP_PAYMENT_LINE_TRANSPORT=grpc` y apunta `APP_GRPC_HOST` / `APP_GRPC_PORT` al microservicio receptor.
