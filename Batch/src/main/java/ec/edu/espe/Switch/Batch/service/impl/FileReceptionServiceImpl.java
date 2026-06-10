@@ -196,6 +196,7 @@ public class FileReceptionServiceImpl implements IFileReceptionService {
                         line.routingCode(),
                         line.destinationAccountNumber(),
                         batch.sourceAccountNumber(),
+                        batch.declaredRecords(),
                         line.amount(),
                         line.reference(),
                         line.beneficiaryName(),

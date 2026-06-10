@@ -15,6 +15,8 @@ public record BatchLineMessage(
         String accountDestination,
         @JsonProperty("originating_account")
         String originatingAccount,
+        @JsonProperty("declared_total_records")
+        int declaredTotalRecords,
         BigDecimal amount,
         String reference,
         @JsonProperty("beneficiary_name")

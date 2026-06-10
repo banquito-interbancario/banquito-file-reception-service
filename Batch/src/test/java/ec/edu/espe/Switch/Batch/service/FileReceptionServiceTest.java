@@ -101,6 +101,7 @@ class FileReceptionServiceTest {
         assertEquals(1, messages.size());
         assertEquals("001", messages.get(0).routingCode());
         assertEquals("1234567890", messages.get(0).originatingAccount());
+        assertEquals(2, messages.get(0).declaredTotalRecords());
 
         ArgumentCaptor<PaymentFileValidation> validationCaptor = ArgumentCaptor.forClass(PaymentFileValidation.class);
         verify(validationRepository).save(validationCaptor.capture());
