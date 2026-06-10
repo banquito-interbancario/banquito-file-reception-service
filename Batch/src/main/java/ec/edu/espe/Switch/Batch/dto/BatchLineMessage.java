@@ -13,6 +13,8 @@ public record BatchLineMessage(
         String routingCode,
         @JsonProperty("account_destination")
         String accountDestination,
+        @JsonProperty("originating_account")
+        String originatingAccount,
         BigDecimal amount,
         String reference,
         @JsonProperty("beneficiary_name")
