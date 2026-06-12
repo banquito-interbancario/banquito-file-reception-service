@@ -6,11 +6,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.scheduling.annotation.EnableAsync;
 
 import ec.edu.espe.switchbatch.config.FileReceptionProperties;
-import ec.edu.espe.switchbatch.config.PostgreSqlDatabaseInitializer;
 
 @EnableAsync
 @SpringBootApplication
-@EnableConfigurationProperties({FileReceptionProperties.class, PostgreSqlDatabaseInitializer.class})
+@EnableConfigurationProperties(FileReceptionProperties.class)
 public class BatchApplication {
 
     public static void main(String[] args) {
