@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-@Document(collection = "payment_batch")
+@Document(collection = "file_payment_batch")
 public class PaymentBatchDocument {
 
     @Id

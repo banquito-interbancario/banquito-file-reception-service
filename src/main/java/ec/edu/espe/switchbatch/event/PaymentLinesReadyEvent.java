@@ -1,12 +1,16 @@
 package ec.edu.espe.switchbatch.event;
 
+import ec.edu.espe.switchbatch.dto.ParsedBatch;
 import java.time.Instant;
-import java.util.List;
 
-import ec.edu.espe.switchbatch.dto.BatchLineMessage;
-
+/**
+ * RF-02: Evento publicado inmediatamente tras validación estructural.
+ * Lleva el lote completo (sin pre-filtrar) para que el listener lo procese
+ * de forma asíncrona vía RabbitMQ.
+ */
 public record PaymentLinesReadyEvent(
         String batchId,
         Instant scheduledProcessAt,
-        List<BatchLineMessage> messages) {
+        ParsedBatch batch,
+        boolean duplicateValid) {
 }

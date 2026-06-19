@@ -1,7 +1,10 @@
 package ec.edu.espe.switchbatch.service.impl;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
+import ec.edu.espe.switchbatch.model.SwitchParameter;
 import ec.edu.espe.switchbatch.repository.SwitchParameterRepository;
 import ec.edu.espe.switchbatch.service.IRoutingCodeCatalogService;
 
@@ -20,5 +23,20 @@ public class RoutingCodeCatalogServiceImpl implements IRoutingCodeCatalogService
             return false;
         }
         return switchParameterRepository.existsById(routingCode.trim());
+    }
+
+    @Override
+    public String classify(String routingCode) {
+        if (routingCode == null || routingCode.isBlank()) {
+            return null;
+        }
+        return switchParameterRepository.findById(routingCode.trim())
+                .map(SwitchParameter::getValueString)
+                .orElse(null);
+    }
+
+    @Override
+    public List<SwitchParameter> listAll() {
+        return switchParameterRepository.findAll();
     }
 }

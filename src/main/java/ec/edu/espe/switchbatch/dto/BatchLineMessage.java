@@ -11,12 +11,16 @@ public record BatchLineMessage(
         int lineNumber,
         @JsonProperty("routing_code")
         String routingCode,
+        @JsonProperty("routing_classification")
+        String routingClassification,
         @JsonProperty("account_destination")
         String accountDestination,
         @JsonProperty("originating_account")
         String originatingAccount,
         @JsonProperty("declared_total_records")
         int declaredTotalRecords,
+        @JsonProperty("declared_total_amount")
+        BigDecimal declaredTotalAmount,
         BigDecimal amount,
         String reference,
         @JsonProperty("beneficiary_name")

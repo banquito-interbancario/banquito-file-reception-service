@@ -5,8 +5,6 @@ import java.time.Instant;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -15,9 +13,6 @@ import jakarta.persistence.Table;
 public class PaymentFileValidation {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(name = "payment_batch_id", nullable = false)
     private String paymentBatchId;
 
@@ -53,10 +48,6 @@ public class PaymentFileValidation {
 
     @Column(name = "validated_at", nullable = false)
     private Instant validatedAt;
-
-    public Long getId() {
-        return id;
-    }
 
     public String getPaymentBatchId() {
         return paymentBatchId;
