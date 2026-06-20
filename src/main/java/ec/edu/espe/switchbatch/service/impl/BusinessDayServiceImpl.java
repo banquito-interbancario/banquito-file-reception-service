@@ -37,6 +37,9 @@ public class BusinessDayServiceImpl implements IBusinessDayService {
 
     @Override
     public boolean isBusinessDay(LocalDate date) {
+        if (properties.isForceBusinessDay()) {
+            return true;
+        }
         if (!properties.isCoreValidationEnabled()) {
             return isWeekday(date);
         }
