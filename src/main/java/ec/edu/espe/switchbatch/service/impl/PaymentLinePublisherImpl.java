@@ -68,7 +68,8 @@ public class PaymentLinePublisherImpl implements IPaymentLinePublisher {
         };
 
         for (BatchLineMessage message : messages) {
-            rabbitTemplate.convertAndSend(properties.getRabbitQueue(), message, timestampPostProcessor);
+            rabbitTemplate.convertAndSend(properties.getRabbitExchange(), properties.getRabbitRoutingKey(),
+                    message, timestampPostProcessor);
         }
     }
 

@@ -10,6 +10,8 @@ public class FileReceptionProperties {
     private PaymentLineTransport paymentLineTransport = PaymentLineTransport.RABBITMQ;
     private boolean rabbitEnabled = false;
     private String rabbitQueue = "payment.lines.queue";
+    private String rabbitExchange = "payment.exchange";
+    private String rabbitRoutingKey = "payment.lines";
     private String grpcHost = "localhost";
     private int grpcPort = 9090;
     private long grpcDeadlineSeconds = 10;
@@ -60,6 +62,22 @@ public class FileReceptionProperties {
 
     public void setRabbitQueue(String rabbitQueue) {
         this.rabbitQueue = rabbitQueue;
+    }
+
+    public String getRabbitExchange() {
+        return rabbitExchange;
+    }
+
+    public void setRabbitExchange(String rabbitExchange) {
+        this.rabbitExchange = rabbitExchange;
+    }
+
+    public String getRabbitRoutingKey() {
+        return rabbitRoutingKey;
+    }
+
+    public void setRabbitRoutingKey(String rabbitRoutingKey) {
+        this.rabbitRoutingKey = rabbitRoutingKey;
     }
 
     public String getGrpcHost() {
