@@ -65,13 +65,25 @@ public final class PostgreSqlDatabaseInitializer {
     }
 
     private static void createDatabase(Connection connection, String database) throws SQLException {
-        if (!database.matches("\\w+")) {
-            throw new IllegalArgumentException("Nombre de base de datos invalido: " + database);
-        }
+        String safeDatabaseName = sanitizeIdentifier(database);
         try (Statement statement = connection.createStatement()) {
-            String safeDatabaseName = "\"" + database + "\"";
             statement.executeUpdate("create database " + safeDatabaseName);
         }
+    }
+
+    private static final String ALLOWED_IDENTIFIER_CHARS =
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+
+    private static String sanitizeIdentifier(String identifier) {
+        StringBuilder rebuilt = new StringBuilder("\"");
+        for (int i = 0; i < identifier.length(); i++) {
+            char c = identifier.charAt(i);
+            if (ALLOWED_IDENTIFIER_CHARS.indexOf(c) < 0) {
+                throw new IllegalArgumentException("Nombre de base de datos invalido: " + identifier);
+            }
+            rebuilt.append(c);
+        }
+        return rebuilt.append('"').toString();
     }
 
     private static String requirePassword(Properties localProperties) {
