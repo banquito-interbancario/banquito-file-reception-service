@@ -17,7 +17,7 @@ public final class PostgreSqlDatabaseInitializer {
     private static final String DEFAULT_PORT = "5432";
     private static final String DEFAULT_DATABASE = "file_reception";
     private static final String DEFAULT_USER = "postgres";
-    private static final String DEFAULT_PASSWORD = "123";
+    private static final String DEFAULT_MAINTENANCE_DB = "postgres";
 
     private PostgreSqlDatabaseInitializer() {
     }
@@ -33,9 +33,9 @@ public final class PostgreSqlDatabaseInitializer {
         String port = resolve("POSTGRES_PORT", DEFAULT_PORT, localProperties);
         String database = resolve("POSTGRES_DB", DEFAULT_DATABASE, localProperties);
         String user = resolve("POSTGRES_USER", DEFAULT_USER, localProperties);
-        String password = resolve("POSTGRES_PASSWORD", DEFAULT_PASSWORD, localProperties);
+        String password = requirePassword(localProperties);
         String driver = resolve("POSTGRES_DRIVER", "org.postgresql.Driver", localProperties);
-        String maintenanceDatabase = resolve("POSTGRES_MAINTENANCE_DB", "postgres", localProperties);
+        String maintenanceDatabase = resolve("POSTGRES_MAINTENANCE_DB", DEFAULT_MAINTENANCE_DB, localProperties);
 
         if (!"org.postgresql.Driver".equals(driver) || database.isBlank()) {
             return;
@@ -71,7 +71,23 @@ public final class PostgreSqlDatabaseInitializer {
     }
 
     private static String quoteIdentifier(String identifier) {
-        return "\"" + identifier.replace("\"", "\"\"") + "\"";
+        if (!identifier.matches("[a-zA-Z0-9_]+")) {
+            throw new IllegalArgumentException("Nombre de base de datos invalido: " + identifier);
+        }
+        return "\"" + identifier + "\"";
+    }
+
+    private static String requirePassword(Properties localProperties) {
+        String envValue = System.getenv("POSTGRES_PASSWORD");
+        if (envValue != null && !envValue.isBlank()) {
+            return envValue.trim();
+        }
+        String propertyValue = localProperties.getProperty("POSTGRES_PASSWORD");
+        if (propertyValue != null && !propertyValue.isBlank()) {
+            return propertyValue.trim();
+        }
+        throw new IllegalStateException(
+                "POSTGRES_PASSWORD no esta configurado (variable de entorno o archivo .env)");
     }
 
     private static String resolve(String key, String defaultValue, Properties localProperties) {
