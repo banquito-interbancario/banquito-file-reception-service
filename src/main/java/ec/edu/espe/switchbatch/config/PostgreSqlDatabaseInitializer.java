@@ -67,7 +67,7 @@ public final class PostgreSqlDatabaseInitializer {
     private static void createDatabase(Connection connection, String database) throws SQLException {
         String safeDatabaseName = sanitizeIdentifier(database);
         try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate("create database " + safeDatabaseName);
+            statement.executeUpdate("create database " + safeDatabaseName); // NOSONAR java:S2077 -- identificador ya saneado caracter por caracter contra whitelist; CREATE DATABASE no admite parametros bindeados en JDBC
         }
     }
 
