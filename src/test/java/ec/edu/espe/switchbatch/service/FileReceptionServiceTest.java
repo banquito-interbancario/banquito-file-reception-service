@@ -8,7 +8,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -54,7 +57,8 @@ class FileReceptionServiceTest {
                 paymentBatchRepository,
                 batchStatusLogRepository,
                 businessDayService,
-                eventPublisher);
+                eventPublisher,
+                Clock.fixed(Instant.parse("2026-05-30T14:00:00Z"), ZoneId.systemDefault()));
 
         when(paymentBatchRepository.save(any(PaymentBatchDocument.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -90,8 +94,10 @@ class FileReceptionServiceTest {
         when(paymentBatchRepository.existsByFileNameAndFileHashAndStatusInAndReceivedAtAfter(
                 anyString(), anyString(), any(), any())).thenReturn(true);
 
+        MockMultipartFile duplicateFile = file(validCsvOneLine());
+
         assertThrows(DuplicateBatchException.class,
-                () -> service.receive(file(validCsvOneLine()), "NOMINA", "0912345678"));
+                () -> service.receive(duplicateFile, "NOMINA", "0912345678"));
 
         // RF-02: no se publica evento para duplicados
         verify(eventPublisher, never()).publishEvent(any());

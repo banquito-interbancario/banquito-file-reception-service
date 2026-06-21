@@ -4,7 +4,6 @@ import ec.edu.espe.switchbatch.dto.BatchLineMessage;
 import ec.edu.espe.switchbatch.dto.ParsedBatch;
 import ec.edu.espe.switchbatch.dto.ParsedPaymentLine;
 import ec.edu.espe.switchbatch.event.PaymentLinesReadyEvent;
-import ec.edu.espe.switchbatch.model.PaymentBatchDocument;
 import ec.edu.espe.switchbatch.model.PaymentFileValidation;
 import ec.edu.espe.switchbatch.repository.BatchStatusLogRepository;
 import ec.edu.espe.switchbatch.repository.PaymentBatchRepository;
@@ -85,8 +84,6 @@ public class PaymentLinesReadyListener {
         // ── 2. Filtrar líneas válidas (RF-01: catálogo + cuenta destino) usando hilos ──────
         logger.info("[RF-02][ASYNC] Procesando líneas utilizando hilos concurrentes para optimizar la carga.");
         List<ParsedPaymentLine> acceptedLines = batch.lines();
-
-        int rejected = 0;
 
         // ── 3. Validar cuenta origen favorita ────────────────────────────────
         boolean sourceAccountValid = coreBankingClient.isFavoriteAccount(

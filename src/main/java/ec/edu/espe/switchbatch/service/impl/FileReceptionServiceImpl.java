@@ -1,6 +1,7 @@
 package ec.edu.espe.switchbatch.service.impl;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -56,19 +58,33 @@ public class FileReceptionServiceImpl implements IFileReceptionService {
     private final BatchStatusLogRepository batchStatusLogRepository;
     private final IBusinessDayService businessDayService;
     private final ApplicationEventPublisher eventPublisher;
+    private final Clock clock;
 
+    @Autowired
     public FileReceptionServiceImpl(ICsvBatchParser csvBatchParser,
                                     FileReceptionProperties properties,
                                     PaymentBatchRepository paymentBatchRepository,
                                     BatchStatusLogRepository batchStatusLogRepository,
                                     IBusinessDayService businessDayService,
                                     ApplicationEventPublisher eventPublisher) {
+        this(csvBatchParser, properties, paymentBatchRepository, batchStatusLogRepository,
+                businessDayService, eventPublisher, Clock.systemDefaultZone());
+    }
+
+    public FileReceptionServiceImpl(ICsvBatchParser csvBatchParser,
+                                    FileReceptionProperties properties,
+                                    PaymentBatchRepository paymentBatchRepository,
+                                    BatchStatusLogRepository batchStatusLogRepository,
+                                    IBusinessDayService businessDayService,
+                                    ApplicationEventPublisher eventPublisher,
+                                    Clock clock) {
         this.csvBatchParser = csvBatchParser;
         this.properties = properties;
         this.paymentBatchRepository = paymentBatchRepository;
         this.batchStatusLogRepository = batchStatusLogRepository;
         this.businessDayService = businessDayService;
         this.eventPublisher = eventPublisher;
+        this.clock = clock;
     }
 
     @Override
@@ -78,7 +94,7 @@ public class FileReceptionServiceImpl implements IFileReceptionService {
         ParsedBatch batch = csvBatchParser.parse(file.getInputStream(), serviceType, clientRuc);
 
         String batchId = UUID.randomUUID().toString();
-        Instant receivedAt = Instant.now();
+        Instant receivedAt = Instant.now(clock);
         IngestionSchedule schedule = resolveIngestionSchedule(receivedAt);
         boolean duplicateValid = !isDuplicate(file.getOriginalFilename(), batch.fileHash(), receivedAt);
 
@@ -146,7 +162,7 @@ public class FileReceptionServiceImpl implements IFileReceptionService {
     }
 
     private IngestionSchedule resolveIngestionSchedule(Instant receivedAt) {
-        ZoneId zone = ZoneId.systemDefault();
+        ZoneId zone = clock.getZone();
         LocalDateTime receivedDateTime = receivedAt.atZone(zone).toLocalDateTime();
         boolean businessDay = businessDayService.isBusinessDay(receivedDateTime.toLocalDate());
         LocalTime cutoffTime = LocalTime.of(properties.getCutoffHour(), 0);
