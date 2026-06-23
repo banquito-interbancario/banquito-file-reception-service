@@ -100,4 +100,35 @@ class CoreBankingClientImplTest {
     void returnsFalseWhenCustomerIdIsInvalid() {
         assertFalse(client.isFavoriteAccount("1234567890", " "));
     }
+
+    @Test
+    void returnsTrueWhenAvailableBalanceCoversRequiredAmount() {
+        server.expect(once(), requestTo("http://core.test/api/v2/accounts/0010000001/balance"))
+                .andRespond(withSuccess("""
+                        {"accountNumber":"0010000001","availableBalance":500.00}
+                        """, MediaType.APPLICATION_JSON));
+
+        assertTrue(client.hasSufficientBalance("0010000001", new java.math.BigDecimal("300.00")));
+        server.verify();
+    }
+
+    @Test
+    void returnsFalseWhenAvailableBalanceIsBelowRequiredAmount() {
+        server.expect(once(), requestTo("http://core.test/api/v2/accounts/0040000001/balance"))
+                .andRespond(withSuccess("""
+                        {"accountNumber":"0040000001","availableBalance":30.02}
+                        """, MediaType.APPLICATION_JSON));
+
+        assertFalse(client.hasSufficientBalance("0040000001", new java.math.BigDecimal("300.00")));
+        server.verify();
+    }
+
+    @Test
+    void returnsFalseWhenCoreSaysAccountNotFoundForBalance() {
+        server.expect(once(), requestTo("http://core.test/api/v2/accounts/9999999999/balance"))
+                .andRespond(withStatus(HttpStatus.NOT_FOUND));
+
+        assertFalse(client.hasSufficientBalance("9999999999", new java.math.BigDecimal("10.00")));
+        server.verify();
+    }
 }

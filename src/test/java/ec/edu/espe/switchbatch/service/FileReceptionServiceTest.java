@@ -32,15 +32,17 @@ import ec.edu.espe.switchbatch.service.impl.CsvBatchParserImpl;
 import ec.edu.espe.switchbatch.service.impl.FileReceptionServiceImpl;
 
 /**
- * RF-02: FileReceptionServiceImpl solo valida estructura + cabecera y responde 202.
- * La validación de core banking y la publicación a RabbitMQ son responsabilidad
- * del PaymentLinesReadyListener (asíncrono).
+ * RF-02: FileReceptionServiceImpl valida estructura + cabecera + saldo de la
+ * cuenta origen y responde 202 (o 400 si el saldo es insuficiente). El resto
+ * de la validación de core banking y la publicación a RabbitMQ son
+ * responsabilidad del PaymentLinesReadyListener (asíncrono).
  */
 class FileReceptionServiceTest {
 
     private final PaymentBatchRepository paymentBatchRepository = org.mockito.Mockito.mock(PaymentBatchRepository.class);
     private final BatchStatusLogRepository batchStatusLogRepository = org.mockito.Mockito.mock(BatchStatusLogRepository.class);
     private final IBusinessDayService businessDayService = org.mockito.Mockito.mock(IBusinessDayService.class);
+    private final ICoreBankingClient coreBankingClient = org.mockito.Mockito.mock(ICoreBankingClient.class);
     private final ApplicationEventPublisher eventPublisher = org.mockito.Mockito.mock(ApplicationEventPublisher.class);
 
     private FileReceptionServiceImpl service;
@@ -57,9 +59,12 @@ class FileReceptionServiceTest {
                 paymentBatchRepository,
                 batchStatusLogRepository,
                 businessDayService,
+                coreBankingClient,
                 eventPublisher,
                 Clock.fixed(Instant.parse("2026-05-30T14:00:00Z"), ZoneId.systemDefault()));
 
+        when(coreBankingClient.hasSufficientBalance(anyString(), any(java.math.BigDecimal.class)))
+                .thenReturn(true);
         when(paymentBatchRepository.save(any(PaymentBatchDocument.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
         when(batchStatusLogRepository.save(any(BatchStatusLog.class)))
@@ -87,6 +92,21 @@ class FileReceptionServiceTest {
         assertEquals(1, event.batch().lines().size());
         assertEquals("001", event.batch().lines().get(0).routingCode());
         assertEquals(true, event.duplicateValid());
+    }
+
+    @Test
+    void receive_debeLanzarExcepcion_yNOPublicarEvento_cuandoSaldoEsInsuficiente() {
+        when(coreBankingClient.hasSufficientBalance(anyString(), any(java.math.BigDecimal.class)))
+                .thenReturn(false);
+
+        MockMultipartFile insufficientFundsFile = file(validCsvOneLine());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> service.receive(insufficientFundsFile, "NOMINA", "0912345678"));
+
+        // No se persiste el lote ni se publica el evento: se rechaza antes de procesar líneas
+        verify(paymentBatchRepository, never()).save(any(PaymentBatchDocument.class));
+        verify(eventPublisher, never()).publishEvent(any());
     }
 
     @Test

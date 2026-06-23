@@ -21,6 +21,7 @@ public class FileReceptionProperties {
     private String coreAccountValidationEndpoint = "/api/v1/accounts/validate";
     private String coreFavoriteAccountEndpoint = "/api/v2/accounts/customer/{customerId}/favorite";
     private String coreMassPaymentServiceEndpoint = "/api/v1/customers/mass-payments/active";
+    private String coreBalanceEndpoint = "/api/v2/accounts/{accountNumber}/balance";
     private boolean coreValidationEnabled = true;
     private boolean forceBusinessDay = false;
 
@@ -150,6 +151,14 @@ public class FileReceptionProperties {
 
     public void setCoreMassPaymentServiceEndpoint(String coreMassPaymentServiceEndpoint) {
         this.coreMassPaymentServiceEndpoint = coreMassPaymentServiceEndpoint;
+    }
+
+    public String getCoreBalanceEndpoint() {
+        return coreBalanceEndpoint;
+    }
+
+    public void setCoreBalanceEndpoint(String coreBalanceEndpoint) {
+        this.coreBalanceEndpoint = coreBalanceEndpoint;
     }
 
     public boolean isCoreValidationEnabled() {

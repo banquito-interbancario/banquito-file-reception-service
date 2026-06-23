@@ -27,6 +27,7 @@ import ec.edu.espe.switchbatch.model.PaymentBatchDocument;
 import ec.edu.espe.switchbatch.repository.BatchStatusLogRepository;
 import ec.edu.espe.switchbatch.repository.PaymentBatchRepository;
 import ec.edu.espe.switchbatch.service.IBusinessDayService;
+import ec.edu.espe.switchbatch.service.ICoreBankingClient;
 import ec.edu.espe.switchbatch.service.ICsvBatchParser;
 import ec.edu.espe.switchbatch.service.IFileReceptionService;
 
@@ -57,6 +58,7 @@ public class FileReceptionServiceImpl implements IFileReceptionService {
     private final PaymentBatchRepository paymentBatchRepository;
     private final BatchStatusLogRepository batchStatusLogRepository;
     private final IBusinessDayService businessDayService;
+    private final ICoreBankingClient coreBankingClient;
     private final ApplicationEventPublisher eventPublisher;
     private final Clock clock;
 
@@ -66,9 +68,10 @@ public class FileReceptionServiceImpl implements IFileReceptionService {
                                     PaymentBatchRepository paymentBatchRepository,
                                     BatchStatusLogRepository batchStatusLogRepository,
                                     IBusinessDayService businessDayService,
+                                    ICoreBankingClient coreBankingClient,
                                     ApplicationEventPublisher eventPublisher) {
         this(csvBatchParser, properties, paymentBatchRepository, batchStatusLogRepository,
-                businessDayService, eventPublisher, Clock.systemDefaultZone());
+                businessDayService, coreBankingClient, eventPublisher, Clock.systemDefaultZone());
     }
 
     public FileReceptionServiceImpl(ICsvBatchParser csvBatchParser,
@@ -76,6 +79,7 @@ public class FileReceptionServiceImpl implements IFileReceptionService {
                                     PaymentBatchRepository paymentBatchRepository,
                                     BatchStatusLogRepository batchStatusLogRepository,
                                     IBusinessDayService businessDayService,
+                                    ICoreBankingClient coreBankingClient,
                                     ApplicationEventPublisher eventPublisher,
                                     Clock clock) {
         this.csvBatchParser = csvBatchParser;
@@ -83,6 +87,7 @@ public class FileReceptionServiceImpl implements IFileReceptionService {
         this.paymentBatchRepository = paymentBatchRepository;
         this.batchStatusLogRepository = batchStatusLogRepository;
         this.businessDayService = businessDayService;
+        this.coreBankingClient = coreBankingClient;
         this.eventPublisher = eventPublisher;
         this.clock = clock;
     }
@@ -92,6 +97,12 @@ public class FileReceptionServiceImpl implements IFileReceptionService {
         // ── FASE SÍNCRONA: solo estructura + cabecera ──────────────────────────
         validateFile(file);
         ParsedBatch batch = csvBatchParser.parse(file.getInputStream(), serviceType, clientRuc);
+
+        if (!coreBankingClient.hasSufficientBalance(batch.sourceAccountNumber(), batch.declaredAmount())) {
+            throw new IllegalArgumentException(
+                    "Saldo insuficiente en la cuenta de origen " + batch.sourceAccountNumber()
+                            + " para cubrir el monto declarado (" + batch.declaredAmount() + ").");
+        }
 
         String batchId = UUID.randomUUID().toString();
         Instant receivedAt = Instant.now(clock);

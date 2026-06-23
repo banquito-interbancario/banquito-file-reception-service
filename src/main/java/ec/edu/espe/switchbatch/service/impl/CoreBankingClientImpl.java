@@ -1,5 +1,6 @@
 package ec.edu.espe.switchbatch.service.impl;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -119,6 +120,34 @@ public class CoreBankingClientImpl implements ICoreBankingClient {
             return false;
         } catch (RuntimeException e) {
             logger.warn("No se pudo validar servicio de pagos masivos para RUC {} en Core: {}", clientRuc, e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean hasSufficientBalance(String accountNumber, BigDecimal requiredAmount) {
+        if (!properties.isCoreValidationEnabled()) {
+            return true;
+        }
+        if (accountNumber == null || accountNumber.isBlank() || requiredAmount == null) {
+            return false;
+        }
+        try {
+            Map<?, ?> response = restClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(properties.getCoreBalanceEndpoint())
+                            .build(accountNumber))
+                    .retrieve()
+                    .body(Map.class);
+            Object value = response == null ? null : response.get("availableBalance");
+            if (value == null) {
+                logger.warn("Core no retorno availableBalance para cuenta {}", accountNumber);
+                return false;
+            }
+            BigDecimal availableBalance = new BigDecimal(value.toString());
+            return availableBalance.compareTo(requiredAmount) >= 0;
+        } catch (RuntimeException e) {
+            logger.warn("No se pudo consultar saldo de cuenta {} en Core: {}", accountNumber, e.getMessage());
             return false;
         }
     }
