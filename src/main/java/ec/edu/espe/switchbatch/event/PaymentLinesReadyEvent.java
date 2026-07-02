@@ -6,7 +6,7 @@ import java.time.Instant;
 /**
  * RF-02: Evento publicado inmediatamente tras validación estructural.
  * Lleva el lote completo (sin pre-filtrar) para que el listener lo procese
- * de forma asíncrona vía RabbitMQ.
+ * de forma asíncrona vía Kafka.
  */
 public record PaymentLinesReadyEvent(
         String batchId,

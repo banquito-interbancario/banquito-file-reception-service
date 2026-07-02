@@ -34,7 +34,7 @@ import ec.edu.espe.switchbatch.service.impl.FileReceptionServiceImpl;
 /**
  * RF-02: FileReceptionServiceImpl valida estructura + cabecera + saldo de la
  * cuenta origen y responde 202 (o 400 si el saldo es insuficiente). El resto
- * de la validación de core banking y la publicación a RabbitMQ son
+ * de la validación de core banking y la publicación a Kafka son
  * responsabilidad del PaymentLinesReadyListener (asíncrono).
  */
 class FileReceptionServiceTest {

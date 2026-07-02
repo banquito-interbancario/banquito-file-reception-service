@@ -7,11 +7,9 @@ public class FileReceptionProperties {
 
     private int duplicateWindowDays = 30;
     private String fileDelimiter = ",";
-    private PaymentLineTransport paymentLineTransport = PaymentLineTransport.RABBITMQ;
-    private boolean rabbitEnabled = false;
-    private String rabbitQueue = "payment.lines.queue";
-    private String rabbitExchange = "payment.exchange";
-    private String rabbitRoutingKey = "payment.lines";
+    private PaymentLineTransport paymentLineTransport = PaymentLineTransport.KAFKA;
+    private boolean kafkaEnabled = false;
+    private String kafkaTopic = "payment-lines";
     private String grpcHost = "localhost";
     private int grpcPort = 9090;
     private long grpcDeadlineSeconds = 10;
@@ -49,36 +47,20 @@ public class FileReceptionProperties {
         this.paymentLineTransport = paymentLineTransport;
     }
 
-    public boolean isRabbitEnabled() {
-        return rabbitEnabled;
+    public boolean isKafkaEnabled() {
+        return kafkaEnabled;
     }
 
-    public void setRabbitEnabled(boolean rabbitEnabled) {
-        this.rabbitEnabled = rabbitEnabled;
+    public void setKafkaEnabled(boolean kafkaEnabled) {
+        this.kafkaEnabled = kafkaEnabled;
     }
 
-    public String getRabbitQueue() {
-        return rabbitQueue;
+    public String getKafkaTopic() {
+        return kafkaTopic;
     }
 
-    public void setRabbitQueue(String rabbitQueue) {
-        this.rabbitQueue = rabbitQueue;
-    }
-
-    public String getRabbitExchange() {
-        return rabbitExchange;
-    }
-
-    public void setRabbitExchange(String rabbitExchange) {
-        this.rabbitExchange = rabbitExchange;
-    }
-
-    public String getRabbitRoutingKey() {
-        return rabbitRoutingKey;
-    }
-
-    public void setRabbitRoutingKey(String rabbitRoutingKey) {
-        this.rabbitRoutingKey = rabbitRoutingKey;
+    public void setKafkaTopic(String kafkaTopic) {
+        this.kafkaTopic = kafkaTopic;
     }
 
     public String getGrpcHost() {

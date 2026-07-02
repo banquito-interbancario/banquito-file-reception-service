@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
  *   1. Validar que el cliente tiene activo el servicio de pagos masivos
  *   2. Filtrar líneas por routing code válido (catálogo paramétrico RF-01)
  *   3. Validar cuenta origen favorita
- *   4. Fragmentar y publicar cada línea como mensaje independiente → RabbitMQ
+ *   4. Fragmentar y publicar cada línea como mensaje independiente → Kafka
  */
 @Component
 public class PaymentLinesReadyListener {
@@ -96,9 +96,9 @@ public class PaymentLinesReadyListener {
             return;
         }
 
-        // ── 4. Fragmentar y publicar cada línea a RabbitMQ ───────────────────
+        // ── 4. Fragmentar y publicar cada línea a Kafka ───────────────────
         List<BatchLineMessage> messages = toMessages(batchId, batch, acceptedLines);
-        logger.info("[RF-02][ASYNC] Publicando {} líneas en RabbitMQ para lote {}.", messages.size(), batchId);
+        logger.info("[RF-02][ASYNC] Publicando {} líneas en Kafka para lote {}.", messages.size(), batchId);
 
         if (event.scheduledProcessAt().isAfter(Instant.now())) {
             logger.info("[RF-02][ASYNC] Lote {} programado para {}. Publicación diferida.", batchId, event.scheduledProcessAt());

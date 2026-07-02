@@ -4,11 +4,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.core.MessagePostProcessor;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -27,15 +27,15 @@ public class PaymentLinePublisherImpl implements IPaymentLinePublisher {
     private static final Logger logger = LoggerFactory.getLogger(PaymentLinePublisherImpl.class);
 
     private final FileReceptionProperties properties;
-    private final ObjectProvider<RabbitTemplate> rabbitTemplateProvider;
+    private final ObjectProvider<KafkaTemplate<String, Object>> kafkaTemplateProvider;
     private final ObjectProvider<PaymentLineIngestionServiceGrpc.PaymentLineIngestionServiceBlockingStub> paymentLineStubProvider;
 
     public PaymentLinePublisherImpl(
             FileReceptionProperties properties,
-            ObjectProvider<RabbitTemplate> rabbitTemplateProvider,
+            ObjectProvider<KafkaTemplate<String, Object>> kafkaTemplateProvider,
             ObjectProvider<PaymentLineIngestionServiceGrpc.PaymentLineIngestionServiceBlockingStub> paymentLineStubProvider) {
         this.properties = properties;
-        this.rabbitTemplateProvider = rabbitTemplateProvider;
+        this.kafkaTemplateProvider = kafkaTemplateProvider;
         this.paymentLineStubProvider = paymentLineStubProvider;
     }
 
@@ -47,29 +47,25 @@ public class PaymentLinePublisherImpl implements IPaymentLinePublisher {
             return;
         }
 
-        publishWithRabbitMq(batchId, scheduledProcessAt, messages);
+        publishWithKafka(batchId, scheduledProcessAt, messages);
     }
 
-    private void publishWithRabbitMq(String batchId, Instant scheduledProcessAt, List<BatchLineMessage> messages) {
-        if (!properties.isRabbitEnabled()) {
-            logger.info("RabbitMQ deshabilitado. {} lineas listas para batch {}", messages.size(), batchId);
+    private void publishWithKafka(String batchId, Instant scheduledProcessAt, List<BatchLineMessage> messages) {
+        if (!properties.isKafkaEnabled()) {
+            logger.info("Kafka deshabilitado. {} lineas listas para batch {}", messages.size(), batchId);
             return;
         }
 
-        RabbitTemplate rabbitTemplate = rabbitTemplateProvider.getIfAvailable();
-        if (rabbitTemplate == null) {
-            logger.warn("RabbitTemplate no disponible. No se publicaron lineas para batch {}", batchId);
+        KafkaTemplate<String, Object> kafkaTemplate = kafkaTemplateProvider.getIfAvailable();
+        if (kafkaTemplate == null) {
+            logger.warn("KafkaTemplate no disponible. No se publicaron lineas para batch {}", batchId);
             return;
         }
 
-        MessagePostProcessor timestampPostProcessor = message -> {
-            message.getMessageProperties().setTimestamp(java.util.Date.from(scheduledProcessAt));
-            return message;
-        };
-
+        String topic = properties.getKafkaTopic();
+        long timestampMillis = scheduledProcessAt.toEpochMilli();
         for (BatchLineMessage message : messages) {
-            rabbitTemplate.convertAndSend(properties.getRabbitExchange(), properties.getRabbitRoutingKey(),
-                    message, timestampPostProcessor);
+            kafkaTemplate.send(new ProducerRecord<>(topic, null, timestampMillis, batchId, message));
         }
     }
 
