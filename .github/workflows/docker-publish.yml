@@ -28,4 +28,4 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          tags: ghcr.io/banco-banquito/file-reception-service:latest
+          tags: ghcr.io/banquito-interbancario/file-reception-service:latest
